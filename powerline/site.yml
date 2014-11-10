@@ -5,53 +5,30 @@
   remote_user: ubuntu
 
   tasks:
-  #- name: Install python-pip
-  #  apt: pkg=python-pip state=latest
-  #  sudo: yes
-
   - name: Install git
     apt: pkg=git state=latest
     sudo: yes
-
-  #- name: Install powerline
-  #  shell: pip install git+git://github.com/Lokaltog/powerline
-  #  sudo: yes
 
   - name: Git clone milkbikis powerline
     git: repo=https://github.com/milkbikis/powerline-shell dest=/tmp/milkbikis
 
   - name: Copy config file, use defaults
-    copy: src=/tmp/milkbikis/powerline-shell/config.py.dist dest=/tmp/milkbikis/powerline-shell/config.py
+    shell: "cp /tmp/milkbikis/config.py.dist /tmp/milkbikis/config.py"
 
   - name: Execute install
     shell: ./install.py
     args:
-      chdir: /tmp/milkbikis/powerline-shell
+      chdir: /tmp/milkbikis
 
   - name: Copy script
-    copy: src=/tmp/milkbikis/powerline-shell/powerline-shell.py dest=/usr/local/bin/powerline-shell.py
+    shell: "cp /tmp/milkbikis/powerline-shell.py /usr/local/bin/powerline-shell.py"
+    sudo: yes
+
+  - name: Set exec permissions to shell script
+    shell: "chmod 755 /usr/local/bin/powerline-shell.py"
     sudo: yes
 
   - name: Set global config to use powerline
     lineinfile: dest=/etc/bash.bashrc line='function _update_ps1() {\n  export PS1="$(/usr/local/bin/powerline-shell.py $? 2> /dev/null)"\n}\n\nexport PROMPT_COMMAND="_update_ps1; $PROMPT_COMMAND"'
     sudo: yes
-
-#  - name: Download fonts
-#    get_url: url=https://github.com/Lokaltog/powerline/raw/develop/font/PowerlineSymbols.otf dest=/tmp/
-
-#  - name: Download fonts 2
-#    get_url: url=https://github.com/Lokaltog/powerline/raw/develop/font/10-powerline-symbols.conf dest=/tmp/
-
-#  - name: create fonts directory
-#    file: state=directory path=/usr/share/fonts
-#    sudo: yes
-
-#  - name: copy fonts
-#    copy: src=/tmp/PowerlineSymbols.otf dest=/usr/share/fonts/
-#    sudo: yes
-
-#  - name: Add powerline to global bashrc
-#    lineinfile: dest=/etc/bash.bashrc line="if [ -f /usr/local/lib/python2.7/dist-packages/powerline/bindings/bash/powerline.sh ]; then source /usr/local/lib/python2.7/dist-packages/powerline/bindings/bash/powerline.sh; fi"
-#    sudo: yes
-
 
